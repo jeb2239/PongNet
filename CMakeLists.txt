@@ -21,36 +21,61 @@ SET(SDL2PP_WITH_MIXER YES)
 SET(SDL2PP_STATIC YES)
 SET(SDL2PP_WITH_EXPERIMENTAL_OPTIONAL YES)
 ADD_SUBDIRECTORY(SDL2pp)
+# Download automatically, you can also just copy the conan.cmake file
 
-# add compilation flags
+
+
 SET(CMAKE_CXX_STANDARD 20)
 ADD_DEFINITIONS(-DDATA_PATH="${PROJECT_SOURCE_DIR}/data")
 INCLUDE_DIRECTORIES(${SDL2PP_INCLUDE_DIRS})
 
-# define targets
-ADD_EXECUTABLE(lesson00 lesson00.cc)
-TARGET_LINK_LIBRARIES(lesson00 ${SDL2PP_LIBRARIES})
+set(FLATBUFFERS_SRC_DIR vendor/flatbuffers)
+add_subdirectory(${FLATBUFFERS_SRC_DIR}
+        ${CMAKE_CURRENT_BINARY_DIR}/flatbuffers-build
+        EXCLUDE_FROM_ALL)
+include(${FLATBUFFERS_SRC_DIR}/CMake/BuildFlatBuffers.cmake)
 
-ADD_EXECUTABLE(lesson01 lesson01.cc)
-TARGET_LINK_LIBRARIES(lesson01 ${SDL2PP_LIBRARIES})
+set(GFLAGS_SRC_DIR vendor/gflags)
+set(gflags_DIR ${GFLAGS_SRC_DIR})
+add_subdirectory(${GFLAGS_SRC_DIR}
+        ${CMAKE_CURRENT_BINARY_DIR}/gflags-build
+        EXCLUDE_FROM_ALL
+        )
+set(gflags_NAMESPACE "gflags" CACHE INTERNAL "Namespace for gflags")
 
-ADD_EXECUTABLE(lesson02 lesson02.cc)
-TARGET_LINK_LIBRARIES(lesson02 ${SDL2PP_LIBRARIES})
+set(GLOG_SRC_DIR vendor/glog)
+add_subdirectory(${GLOG_SRC_DIR}
+        ${CMAKE_CURRENT_BINARY_DIR}/glog-build
+        EXCLUDE_FROM_ALL)
+# # define targets
+# ADD_EXECUTABLE(lesson00 lesson00.cc)
+# TARGET_LINK_LIBRARIES(lesson00 ${SDL2PP_LIBRARIES})
 
-ADD_EXECUTABLE(lesson03 lesson03.cc)
-TARGET_LINK_LIBRARIES(lesson03 ${SDL2PP_LIBRARIES})
+# ADD_EXECUTABLE(lesson01 lesson01.cc)
+# TARGET_LINK_LIBRARIES(lesson01 ${SDL2PP_LIBRARIES})
 
-ADD_EXECUTABLE(lesson04 lesson04.cc)
-TARGET_LINK_LIBRARIES(lesson04 ${SDL2PP_LIBRARIES})
+# ADD_EXECUTABLE(lesson02 lesson02.cc)
+# TARGET_LINK_LIBRARIES(lesson02 ${SDL2PP_LIBRARIES})
 
-ADD_EXECUTABLE(lesson05 lesson05.cc)
-TARGET_LINK_LIBRARIES(lesson05 ${SDL2PP_LIBRARIES})
+# ADD_EXECUTABLE(lesson03 lesson03.cc)
+# TARGET_LINK_LIBRARIES(lesson03 ${SDL2PP_LIBRARIES})
 
-ADD_EXECUTABLE(lesson06 lesson06.cc)
-TARGET_LINK_LIBRARIES(lesson06 ${SDL2PP_LIBRARIES})
+# ADD_EXECUTABLE(lesson04 lesson04.cc)
+# TARGET_LINK_LIBRARIES(lesson04 ${SDL2PP_LIBRARIES})
 
-ADD_EXECUTABLE(lesson07 lesson07.cc)
-TARGET_LINK_LIBRARIES(lesson07 ${SDL2PP_LIBRARIES})
+# ADD_EXECUTABLE(lesson05 lesson05.cc)
+# TARGET_LINK_LIBRARIES(lesson05 ${SDL2PP_LIBRARIES})
 
-ADD_EXECUTABLE(main main.cpp Game.cpp)
-target_link_libraries(main ${SDL2PP_LIBRARIES})
+# ADD_EXECUTABLE(lesson06 lesson06.cc)
+# TARGET_LINK_LIBRARIES(lesson06 ${SDL2PP_LIBRARIES})
+
+# ADD_EXECUTABLE(lesson07 lesson07.cc)
+# TARGET_LINK_LIBRARIES(lesson07 ${SDL2PP_LIBRARIES})
+#build_flatbuffers("./State.fbs" "${CMAKE_CURRENT_BINARY_PATH}" "State")
+ADD_EXECUTABLE(main main.cpp Game.cpp Ball.cpp AutoPlayer.cpp Player.cpp HumanPlayer.cpp HumanPlayer.hpp Constants.cpp)
+target_link_libraries(main ${SDL2PP_LIBRARIES} glog::glog gflags flatbuffers)
+
+# ADD_EXECUTABLE(example example.cc)
+# target_link_libraries(example ${SDL2PP_LIBRARIES})
+
+# ADD_EXECUTABLE(loggingExample third_party_library_examples/loggingExample.cpp)

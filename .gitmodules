@@ -1,3 +1,13 @@
 [submodule "SDL2pp"]
 	path = SDL2pp
 	url = git@github.com:jeb2239/libSDL2pp.git
+	branch = PongNet
+[submodule "Flatbuffers"]
+    path = vendor/flatbuffers
+    url = git@github.com:google/flatbuffers.git
+[submodule "Gflags"]
+    path = vendor/gflags
+    url = git@github.com:gflags/gflags.git
+[submodule "Glog"]
+    path = vendor/glog
+    url = git@github.com:google/glog.git

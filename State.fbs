@@ -1,0 +1,31 @@
+
+namespace Pong.Net.State;
+
+struct Rect {
+    x:int;
+    y:int;
+    w:int;
+    h:int;
+}
+
+table Ball {
+    vx:float;
+    vy:float;
+    speed:float;
+    rect:Rect;
+}
+
+table Player {
+    pos:Rect;
+    speed:int;
+    score:int;
+}
+
+table Game {
+    player1:Player;
+    player2:Player;
+    ball:Ball;
+
+}
+
+root_type Game;
