@@ -11,3 +11,10 @@
 [submodule "Glog"]
     path = vendor/glog
     url = git@github.com:google/glog.git
+[submodule "asio"]
+	path = vendor/asio
+	url = git@github.com:chriskohlhoff/asio.git
+
+[submodule "readerwriterqueue"]
+    path = vendor/readerwriterqueue
+    url = git@github.com:cameron314/readerwriterqueue.git
