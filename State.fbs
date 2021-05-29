@@ -28,4 +28,28 @@ table Game {
 
 }
 
+table PlayerLogin {
+    playerId:uint8;
+    playerName:string;
+}
+
+table PlayerLogout {
+playerId:uint8;
+}
+
+
+
+
+union  PacketType {
+    Login:PlayerLogin,
+    ReplicationData:Game,
+    Logout:PlayerLogout,
+
+}
+
+table Packet {
+    data:PacketType;
+}
+
+root_type Packet;
 root_type Game;

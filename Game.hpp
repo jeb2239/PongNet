@@ -14,12 +14,13 @@
 #include "AutoPlayer.h"
 #include "State_generated.h"
 #include "gflags/gflags.h"
+#include "readerwriterqueue.h"
 
 
 namespace Pong::Net {
     class Game {
     public:
-        Game();
+        Game(moodycamel::BlockingReaderWriterQueue<DataPacket>& rwq);
 
         void run();
         void loadSaveState(const std::string&);
@@ -32,7 +33,11 @@ namespace Pong::Net {
 
         void stateSave();
 
+        void pushFullGameState();
+
     private:
+        
+
         SDL2pp::Window mWindow;
         Ball mBall;
         bool mRunning;
@@ -42,6 +47,8 @@ namespace Pong::Net {
         AutoPlayer p2;
         int frames;
         int fps;
+        moodycamel::BlockingReaderWriterQueue<DataPacket>& rwq;
+
     };
 
 } // namespace Pong

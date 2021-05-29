@@ -22,17 +22,17 @@ namespace Pong::Net {
 
 
 
-    Game::Game() : mWindow("Pong::Net",
+    Game::Game(moodycamel::BlockingReaderWriterQueue<DataPacket>& r) : rwq(r),mWindow("Pong::Net",
                            SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                            SCREEN_WIDTH, SCREEN_HEIGHT,
                            SDL_WINDOW_SHOWN),
                    mRenderer(mWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC),
-                   mBoardTexture(mRenderer, DATA_PATH "/img/pong_board.png"),
+                   mBoardTexture(mRenderer, DATA_PATH "/pong_board.png"),
                    p1(mBoardTexture.GetWidth() / 2 + 10, SCREEN_HEIGHT / 2 - 150 / 2,
                       mBoardTexture.GetWidth(), 150, 10),
                    p2(SCREEN_WIDTH - mBoardTexture.GetWidth() / 2 - 10 - mBoardTexture.GetWidth() / 2,
                       SCREEN_HEIGHT / 2 - 150 / 2,
-                      mBoardTexture.GetWidth(), 150, 10) {
+                      mBoardTexture.GetWidth(), 150, 10)  {
 
 
     }
@@ -50,6 +50,7 @@ namespace Pong::Net {
                 frames = 0;
             }
             processEvents();
+            // pushFullGameState();
         }
     }
 
@@ -102,12 +103,16 @@ namespace Pong::Net {
                         stateSave();
                         LOG(INFO) << "Saving ...";
                     }
+                    if(event.key.keysym.sym==SDLK_d){
+                        pushFullGameState();
+                    }
                     break;
                 default:
                     break;
             }
         }
         update();
+
         render();
 
     }
@@ -123,6 +128,19 @@ namespace Pong::Net {
         std::ofstream ofs("GameState.bin", std::ios::binary);
         ofs.write((char *) buf, fbb.GetSize());
 
+    }
+    
+    void Game::pushFullGameState(){
+        flatbuffers::FlatBufferBuilder fbb;
+        auto p1Offset=p1.Save(fbb);
+        auto p2Offset=p2.Save(fbb);
+        auto ballOffset=mBall.Save(fbb);
+        auto game = State::CreateGame(fbb, p1Offset,p2Offset,ballOffset);
+        State::FinishGameBuffer(fbb, game);
+        
+        Pong::Net::DataPacket buf(fbb.GetBufferPointer());
+        rwq.enqueue(buf);
+        
     }
 
     void Game::loadSaveState(const std::string& s) {

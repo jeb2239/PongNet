@@ -20,7 +20,7 @@ SET(SDL2PP_WITH_TTF YES)
 SET(SDL2PP_WITH_MIXER YES)
 SET(SDL2PP_STATIC YES)
 SET(SDL2PP_WITH_EXPERIMENTAL_OPTIONAL YES)
-ADD_SUBDIRECTORY(SDL2pp)
+ADD_SUBDIRECTORY(vendor/SDL2pp)
 # Download automatically, you can also just copy the conan.cmake file
 
 
@@ -47,6 +47,9 @@ set(GLOG_SRC_DIR vendor/glog)
 add_subdirectory(${GLOG_SRC_DIR}
         ${CMAKE_CURRENT_BINARY_DIR}/glog-build
         EXCLUDE_FROM_ALL)
+
+include_directories(vendor/asio/asio/include)
+include_directories(vendor/readerwriterqueue)
 # # define targets
 # ADD_EXECUTABLE(lesson00 lesson00.cc)
 # TARGET_LINK_LIBRARIES(lesson00 ${SDL2PP_LIBRARIES})
@@ -72,8 +75,11 @@ add_subdirectory(${GLOG_SRC_DIR}
 # ADD_EXECUTABLE(lesson07 lesson07.cc)
 # TARGET_LINK_LIBRARIES(lesson07 ${SDL2PP_LIBRARIES})
 #build_flatbuffers("./State.fbs" "${CMAKE_CURRENT_BINARY_PATH}" "State")
+ADD_EXECUTABLE(server server/main.cpp server/GameServer.cpp State_generated.h )
+target_link_libraries(server flatbuffers glog::glog)
 ADD_EXECUTABLE(main main.cpp Game.cpp Ball.cpp AutoPlayer.cpp Player.cpp HumanPlayer.cpp HumanPlayer.hpp Constants.cpp)
-target_link_libraries(main ${SDL2PP_LIBRARIES} glog::glog gflags flatbuffers)
+target_link_libraries(main ${SDL2PP_LIBRARIES} glog::glog gflags flatbuffers pthread)
+target_link_libraries(server pthread)
 
 # ADD_EXECUTABLE(example example.cc)
 # target_link_libraries(example ${SDL2PP_LIBRARIES})
