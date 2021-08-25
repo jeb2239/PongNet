@@ -20,7 +20,7 @@ SET(SDL2PP_WITH_TTF YES)
 SET(SDL2PP_WITH_MIXER YES)
 SET(SDL2PP_STATIC YES)
 SET(SDL2PP_WITH_EXPERIMENTAL_OPTIONAL YES)
-ADD_SUBDIRECTORY(SDL2pp)
+ADD_SUBDIRECTORY(vendor/libSDL2pp)
 # Download automatically, you can also just copy the conan.cmake file
 
 
@@ -50,6 +50,7 @@ add_subdirectory(${GLOG_SRC_DIR}
 
 include_directories(vendor/asio/asio/include)
 include_directories(vendor/readerwriterqueue)
+
 # # define targets
 # ADD_EXECUTABLE(lesson00 lesson00.cc)
 # TARGET_LINK_LIBRARIES(lesson00 ${SDL2PP_LIBRARIES})
