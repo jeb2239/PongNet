@@ -20,7 +20,7 @@ SET(SDL2PP_WITH_TTF YES)
 SET(SDL2PP_WITH_MIXER YES)
 SET(SDL2PP_STATIC YES)
 SET(SDL2PP_WITH_EXPERIMENTAL_OPTIONAL YES)
-ADD_SUBDIRECTORY(vendor/SDL2pp)
+ADD_SUBDIRECTORY(SDL2pp)
 # Download automatically, you can also just copy the conan.cmake file
 
 
@@ -76,10 +76,10 @@ include_directories(vendor/readerwriterqueue)
 # TARGET_LINK_LIBRARIES(lesson07 ${SDL2PP_LIBRARIES})
 #build_flatbuffers("./State.fbs" "${CMAKE_CURRENT_BINARY_PATH}" "State")
 ADD_EXECUTABLE(server server/main.cpp server/GameServer.cpp State_generated.h )
-target_link_libraries(server flatbuffers glog::glog)
+target_link_libraries(server flatbuffers glog::glog gflags)
 ADD_EXECUTABLE(main main.cpp Game.cpp Ball.cpp AutoPlayer.cpp Player.cpp HumanPlayer.cpp HumanPlayer.hpp Constants.cpp)
 target_link_libraries(main ${SDL2PP_LIBRARIES} glog::glog gflags flatbuffers pthread)
-target_link_libraries(server pthread)
+target_link_libraries(server pthread )
 
 # ADD_EXECUTABLE(example example.cc)
 # target_link_libraries(example ${SDL2PP_LIBRARIES})

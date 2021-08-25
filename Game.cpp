@@ -15,7 +15,7 @@
 #include "glog/logging.h"
 
 
-
+#include "SDL2pp/Rect.hh"
 namespace Pong::Net {
 
 // find a better soln
@@ -61,19 +61,25 @@ namespace Pong::Net {
         // Basic AI
         p2.Move(mBall);
 
-        auto scores = mBall.Update(p1, p2);
+        std::pair<bool,bool> scores = mBall.Update(p1, p2);
         if (scores.first) {
             p1.Scored();
         }
         if (scores.second) {
             p2.Scored();
         }
+        /*
+        list | process | events | 
+        sound events
 
-
+        render - processevent+ai+buttons -  (update apply changes moves w/o consequences)  - (phys collide) - 
+        */
         mBall.Update(p1, p2);
         mBall.Bounce(p1, p2);
         p1.Bounds();
         p2.Bounds();
+        // push whole world
+        
 
     }
 
@@ -92,7 +98,8 @@ namespace Pong::Net {
         SDL_Event event;
 
         while (SDL_PollEvent(&event)) {
-
+           render(); // can take a long time 
+            // process messages, stuff user thought of 
             switch (event.type) {
                 case SDL_QUIT:
                     LOG(INFO) << "Shutting Down";
@@ -111,10 +118,19 @@ namespace Pong::Net {
                     break;
             }
         }
-        update();
 
-        render();
+        //move
+        update(); // apply what ever happend in event handler
 
+         /*maybe sleep at end
+         might be broken out, 
+         use lists, 
+         collision, 
+         lists
+        */
+
+
+       
     }
 
     void Game::stateSave() {

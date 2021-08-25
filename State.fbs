@@ -40,7 +40,7 @@ playerId:uint8;
 
 
 
-union  PacketType {
+union PacketType {
     Login:PlayerLogin,
     ReplicationData:Game,
     Logout:PlayerLogout,
@@ -53,3 +53,4 @@ table Packet {
 
 root_type Packet;
 root_type Game;
+
