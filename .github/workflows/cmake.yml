@@ -19,7 +19,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-     - run: |
+    - name: install clang
+      run: |
           sudo apt update
           sudo apt install clang-10
       shell: bash
