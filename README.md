@@ -16,6 +16,7 @@ sudo apt install clang-10
 sudo apt install cmake
 sudo apt install libsdl2-dev libsdl2-gfx-dev libsdl2-image-dev
 sudo apt install libsdl2-mixer-dev libsdl2-net-dev libsdl2-ttf-dev
+sudo apt install flatbuffers-compiler
 export CC=clang-10
 export CXX=clang++-10
 ```
