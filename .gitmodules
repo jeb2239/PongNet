@@ -1,16 +1,5 @@
-[submodule "SDL2pp"]
-	path = SDL2pp
-	url = git@github.com:jeb2239/libSDL2pp.git
-	branch = PongNet
 
 
-[submodule "asio"]
-	path = vendor/asio
-	url = git@github.com:chriskohlhoff/asio.git
-
-[submodule "readerwriterqueue"]
-	path = vendor/readerwriterqueue
-	url = git@github.com:cameron314/readerwriterqueue.git
 
 [submodule "vendor/glog"]
 	path = vendor/glog
@@ -24,10 +13,9 @@
 	path = vendor/flatbuffers
 	url = git@github.com:google/flatbuffers.git
 
-[submodule "vendor/libSDL2pp"]
-	path = vendor/libSDL2pp
-	url = git@github.com:jeb2239/libSDL2pp.git
-
 [submodule "vendor/readerwriterqueue"]
 	path = vendor/readerwriterqueue
 	url = git@github.com:cameron314/readerwriterqueue.git
+[submodule "vendor/libSDL2pp"]
+	path = vendor/libSDL2pp
+	url = git@github.com:jeb2239/libSDL2pp.git
