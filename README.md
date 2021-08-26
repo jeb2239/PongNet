@@ -7,7 +7,7 @@ git clone --recurse-submodules git@github.com:jeb2239/PongNet.git
 ```
 
 I have only tested building and developing this project on ubuntu 20.04.
-Would like to see if it could run on windows.
+Would like to see if it could run on windows natively.
 
 This has been developed using the clang compiler version 10
 using C++20
