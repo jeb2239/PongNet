@@ -152,10 +152,16 @@ namespace Pong::Net {
         auto p2Offset=p2.Save(fbb);
         auto ballOffset=mBall.Save(fbb);
         auto game = State::CreateGame(fbb, p1Offset,p2Offset,ballOffset);
-        State::FinishGameBuffer(fbb, game);
+        int oppId=0;
         
-        Pong::Net::DataPacket buf(fbb.GetBufferPointer());
-        rwq.enqueue(buf);
+        auto message = State::CreateMessage(fbb,oppId,Pong::Net::State::PacketType_ReplicationData,game.Union());
+        fbb.FinishSizePrefixed(message);
+        
+        rwq.enqueue(fbb.GetBufferSpan());
+        
+        // this fbb is never touched again by this thread
+        
+        
         
     }
 
@@ -169,12 +175,6 @@ namespace Pong::Net {
         char *data = new char[length];
         infile.read(data, length);
         infile.close();
-
-        auto gameState = State::GetGame(data);
-        this->mBall.Restore(gameState->ball());
-        this->p1.Restore(gameState->player1());
-        this->p2.Restore(gameState->player2());
-
 
 
 

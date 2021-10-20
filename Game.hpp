@@ -15,6 +15,7 @@
 #include "State_generated.h"
 #include "gflags/gflags.h"
 #include "readerwriterqueue.h"
+#include <span>
 
 
 namespace Pong::Net {
@@ -47,7 +48,7 @@ namespace Pong::Net {
         AutoPlayer p2;
         int frames;
         int fps;
-        moodycamel::BlockingReaderWriterQueue<DataPacket>& rwq;
+        moodycamel::BlockingReaderWriterQueue<std::span<uint8_t>>& rwq;
 
     };
 

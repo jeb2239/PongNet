@@ -39,18 +39,24 @@ playerId:uint8;
 
 
 
-
+table PlayerLoginAck {
+    opponentId:uint8;
+}
 union PacketType {
     Login:PlayerLogin,
+    LoginAck:PlayerLoginAck,
     ReplicationData:Game,
     Logout:PlayerLogout,
 
 }
 
-table Packet {
-    data:PacketType;
+
+
+table Message {
+    sendTo:uint64;
+    type:PacketType;
 }
 
-root_type Packet;
-root_type Game;
+root_type Message;
 
+root_type Game;

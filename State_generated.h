@@ -27,22 +27,27 @@ struct PlayerLoginBuilder;
 struct PlayerLogout;
 struct PlayerLogoutBuilder;
 
-struct Packet;
-struct PacketBuilder;
+struct PlayerLoginAck;
+struct PlayerLoginAckBuilder;
 
-enum PacketType {
+struct Message;
+struct MessageBuilder;
+
+enum PacketType : uint8_t {
   PacketType_NONE = 0,
   PacketType_Login = 1,
-  PacketType_ReplicationData = 2,
-  PacketType_Logout = 3,
+  PacketType_LoginAck = 2,
+  PacketType_ReplicationData = 3,
+  PacketType_Logout = 4,
   PacketType_MIN = PacketType_NONE,
   PacketType_MAX = PacketType_Logout
 };
 
-inline const PacketType (&EnumValuesPacketType())[4] {
+inline const PacketType (&EnumValuesPacketType())[5] {
   static const PacketType values[] = {
     PacketType_NONE,
     PacketType_Login,
+    PacketType_LoginAck,
     PacketType_ReplicationData,
     PacketType_Logout
   };
@@ -50,9 +55,10 @@ inline const PacketType (&EnumValuesPacketType())[4] {
 }
 
 inline const char * const *EnumNamesPacketType() {
-  static const char * const names[5] = {
+  static const char * const names[6] = {
     "NONE",
     "Login",
+    "LoginAck",
     "ReplicationData",
     "Logout",
     nullptr
@@ -74,6 +80,10 @@ template<> struct PacketTypeTraits<Pong::Net::State::PlayerLogin> {
   static const PacketType enum_value = PacketType_Login;
 };
 
+template<> struct PacketTypeTraits<Pong::Net::State::PlayerLoginAck> {
+  static const PacketType enum_value = PacketType_LoginAck;
+};
+
 template<> struct PacketTypeTraits<Pong::Net::State::Game> {
   static const PacketType enum_value = PacketType_ReplicationData;
 };
@@ -93,8 +103,11 @@ FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) Rect FLATBUFFERS_FINAL_CLASS {
   int32_t h_;
 
  public:
-  Rect() {
-    memset(static_cast<void *>(this), 0, sizeof(Rect));
+  Rect()
+      : x_(0),
+        y_(0),
+        w_(0),
+        h_(0) {
   }
   Rect(int32_t _x, int32_t _y, int32_t _w, int32_t _h)
       : x_(flatbuffers::EndianScalar(_x)),
@@ -167,7 +180,6 @@ struct BallBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  BallBuilder &operator=(const BallBuilder &);
   flatbuffers::Offset<Ball> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<Ball>(end);
@@ -231,7 +243,6 @@ struct PlayerBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  PlayerBuilder &operator=(const PlayerBuilder &);
   flatbuffers::Offset<Player> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<Player>(end);
@@ -296,7 +307,6 @@ struct GameBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  GameBuilder &operator=(const GameBuilder &);
   flatbuffers::Offset<Game> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<Game>(end);
@@ -351,7 +361,6 @@ struct PlayerLoginBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  PlayerLoginBuilder &operator=(const PlayerLoginBuilder &);
   flatbuffers::Offset<PlayerLogin> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<PlayerLogin>(end);
@@ -406,7 +415,6 @@ struct PlayerLogoutBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  PlayerLogoutBuilder &operator=(const PlayerLogoutBuilder &);
   flatbuffers::Offset<PlayerLogout> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<PlayerLogout>(end);
@@ -422,78 +430,135 @@ inline flatbuffers::Offset<PlayerLogout> CreatePlayerLogout(
   return builder_.Finish();
 }
 
-struct Packet FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
-  typedef PacketBuilder Builder;
+struct PlayerLoginAck FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef PlayerLoginAckBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_DATA_TYPE = 4,
-    VT_DATA = 6
+    VT_OPPONENTID = 4
   };
-  Pong::Net::State::PacketType data_type() const {
-    return static_cast<Pong::Net::State::PacketType>(GetField<uint8_t>(VT_DATA_TYPE, 0));
-  }
-  const void *data() const {
-    return GetPointer<const void *>(VT_DATA);
-  }
-  template<typename T> const T *data_as() const;
-  const Pong::Net::State::PlayerLogin *data_as_Login() const {
-    return data_type() == Pong::Net::State::PacketType_Login ? static_cast<const Pong::Net::State::PlayerLogin *>(data()) : nullptr;
-  }
-  const Pong::Net::State::Game *data_as_ReplicationData() const {
-    return data_type() == Pong::Net::State::PacketType_ReplicationData ? static_cast<const Pong::Net::State::Game *>(data()) : nullptr;
-  }
-  const Pong::Net::State::PlayerLogout *data_as_Logout() const {
-    return data_type() == Pong::Net::State::PacketType_Logout ? static_cast<const Pong::Net::State::PlayerLogout *>(data()) : nullptr;
+  uint8_t opponentId() const {
+    return GetField<uint8_t>(VT_OPPONENTID, 0);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<uint8_t>(verifier, VT_DATA_TYPE) &&
-           VerifyOffset(verifier, VT_DATA) &&
-           VerifyPacketType(verifier, data(), data_type()) &&
+           VerifyField<uint8_t>(verifier, VT_OPPONENTID) &&
            verifier.EndTable();
   }
 };
 
-template<> inline const Pong::Net::State::PlayerLogin *Packet::data_as<Pong::Net::State::PlayerLogin>() const {
-  return data_as_Login();
-}
-
-template<> inline const Pong::Net::State::Game *Packet::data_as<Pong::Net::State::Game>() const {
-  return data_as_ReplicationData();
-}
-
-template<> inline const Pong::Net::State::PlayerLogout *Packet::data_as<Pong::Net::State::PlayerLogout>() const {
-  return data_as_Logout();
-}
-
-struct PacketBuilder {
-  typedef Packet Table;
+struct PlayerLoginAckBuilder {
+  typedef PlayerLoginAck Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
-  void add_data_type(Pong::Net::State::PacketType data_type) {
-    fbb_.AddElement<uint8_t>(Packet::VT_DATA_TYPE, static_cast<uint8_t>(data_type), 0);
+  void add_opponentId(uint8_t opponentId) {
+    fbb_.AddElement<uint8_t>(PlayerLoginAck::VT_OPPONENTID, opponentId, 0);
   }
-  void add_data(flatbuffers::Offset<void> data) {
-    fbb_.AddOffset(Packet::VT_DATA, data);
-  }
-  explicit PacketBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit PlayerLoginAckBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  PacketBuilder &operator=(const PacketBuilder &);
-  flatbuffers::Offset<Packet> Finish() {
+  flatbuffers::Offset<PlayerLoginAck> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<Packet>(end);
+    auto o = flatbuffers::Offset<PlayerLoginAck>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<Packet> CreatePacket(
+inline flatbuffers::Offset<PlayerLoginAck> CreatePlayerLoginAck(
     flatbuffers::FlatBufferBuilder &_fbb,
-    Pong::Net::State::PacketType data_type = Pong::Net::State::PacketType_NONE,
-    flatbuffers::Offset<void> data = 0) {
-  PacketBuilder builder_(_fbb);
-  builder_.add_data(data);
-  builder_.add_data_type(data_type);
+    uint8_t opponentId = 0) {
+  PlayerLoginAckBuilder builder_(_fbb);
+  builder_.add_opponentId(opponentId);
+  return builder_.Finish();
+}
+
+struct Message FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef MessageBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_SENDTO = 4,
+    VT_TYPE_TYPE = 6,
+    VT_TYPE = 8
+  };
+  uint64_t sendTo() const {
+    return GetField<uint64_t>(VT_SENDTO, 0);
+  }
+  Pong::Net::State::PacketType type_type() const {
+    return static_cast<Pong::Net::State::PacketType>(GetField<uint8_t>(VT_TYPE_TYPE, 0));
+  }
+  const void *type() const {
+    return GetPointer<const void *>(VT_TYPE);
+  }
+  template<typename T> const T *type_as() const;
+  const Pong::Net::State::PlayerLogin *type_as_Login() const {
+    return type_type() == Pong::Net::State::PacketType_Login ? static_cast<const Pong::Net::State::PlayerLogin *>(type()) : nullptr;
+  }
+  const Pong::Net::State::PlayerLoginAck *type_as_LoginAck() const {
+    return type_type() == Pong::Net::State::PacketType_LoginAck ? static_cast<const Pong::Net::State::PlayerLoginAck *>(type()) : nullptr;
+  }
+  const Pong::Net::State::Game *type_as_ReplicationData() const {
+    return type_type() == Pong::Net::State::PacketType_ReplicationData ? static_cast<const Pong::Net::State::Game *>(type()) : nullptr;
+  }
+  const Pong::Net::State::PlayerLogout *type_as_Logout() const {
+    return type_type() == Pong::Net::State::PacketType_Logout ? static_cast<const Pong::Net::State::PlayerLogout *>(type()) : nullptr;
+  }
+  bool Verify(flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint64_t>(verifier, VT_SENDTO) &&
+           VerifyField<uint8_t>(verifier, VT_TYPE_TYPE) &&
+           VerifyOffset(verifier, VT_TYPE) &&
+           VerifyPacketType(verifier, type(), type_type()) &&
+           verifier.EndTable();
+  }
+};
+
+template<> inline const Pong::Net::State::PlayerLogin *Message::type_as<Pong::Net::State::PlayerLogin>() const {
+  return type_as_Login();
+}
+
+template<> inline const Pong::Net::State::PlayerLoginAck *Message::type_as<Pong::Net::State::PlayerLoginAck>() const {
+  return type_as_LoginAck();
+}
+
+template<> inline const Pong::Net::State::Game *Message::type_as<Pong::Net::State::Game>() const {
+  return type_as_ReplicationData();
+}
+
+template<> inline const Pong::Net::State::PlayerLogout *Message::type_as<Pong::Net::State::PlayerLogout>() const {
+  return type_as_Logout();
+}
+
+struct MessageBuilder {
+  typedef Message Table;
+  flatbuffers::FlatBufferBuilder &fbb_;
+  flatbuffers::uoffset_t start_;
+  void add_sendTo(uint64_t sendTo) {
+    fbb_.AddElement<uint64_t>(Message::VT_SENDTO, sendTo, 0);
+  }
+  void add_type_type(Pong::Net::State::PacketType type_type) {
+    fbb_.AddElement<uint8_t>(Message::VT_TYPE_TYPE, static_cast<uint8_t>(type_type), 0);
+  }
+  void add_type(flatbuffers::Offset<void> type) {
+    fbb_.AddOffset(Message::VT_TYPE, type);
+  }
+  explicit MessageBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  flatbuffers::Offset<Message> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = flatbuffers::Offset<Message>(end);
+    return o;
+  }
+};
+
+inline flatbuffers::Offset<Message> CreateMessage(
+    flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t sendTo = 0,
+    Pong::Net::State::PacketType type_type = Pong::Net::State::PacketType_NONE,
+    flatbuffers::Offset<void> type = 0) {
+  MessageBuilder builder_(_fbb);
+  builder_.add_sendTo(sendTo);
+  builder_.add_type(type);
+  builder_.add_type_type(type_type);
   return builder_.Finish();
 }
 
@@ -504,6 +569,10 @@ inline bool VerifyPacketType(flatbuffers::Verifier &verifier, const void *obj, P
     }
     case PacketType_Login: {
       auto ptr = reinterpret_cast<const Pong::Net::State::PlayerLogin *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case PacketType_LoginAck: {
+      auto ptr = reinterpret_cast<const Pong::Net::State::PlayerLoginAck *>(obj);
       return verifier.VerifyTable(ptr);
     }
     case PacketType_ReplicationData: {

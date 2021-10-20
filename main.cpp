@@ -15,13 +15,18 @@ int main(int argc, char **argv)
     gflags::ParseCommandLineFlags(&argc, &argv, true);
     google::InitGoogleLogging(argv[0]);
     SDL2pp::SDL sdl(SDL_INIT_EVERYTHING);
+
+    asio::io_context io_context;
+    asio::ip::tcp::resolver resolver(io_context);
+    
+    
     //packet of game state there should be a timestamp
     /*
     milliseconds 
     paddle movement should be variable -starts acceleration y''' order goes up and stops
     */
     LOG(INFO) << "booting game";
-    moodycamel::BlockingReaderWriterQueue<Pong::Net::DataPacket> rwq;
+    moodycamel::BlockingReaderWriterQueue<std::span<uint8_t>> rwq;
     Pong::Net::Game g(rwq);
     if (!FLAGS_saveFile.empty()){
         g.loadSaveState(FLAGS_saveFile);

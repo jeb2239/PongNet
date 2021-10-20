@@ -2,6 +2,7 @@
 #include "Constants.hpp"
 #include <thread>
 #include <chrono>
+#include <span>
 #include "asio.hpp"
 namespace Pong::Net
 {
@@ -13,7 +14,7 @@ namespace Pong::Net
     // circular buff
     // single producer
     // tcp is commands
-        explicit NetworkManager(moodycamel::BlockingReaderWriterQueue<DataPacket> &dp) : rwq(dp)
+        explicit NetworkManager(moodycamel::BlockingReaderWriterQueue<std::vector<uint8_t>> &dp) : rwq(dp)
         {
 
         }
@@ -25,12 +26,12 @@ namespace Pong::Net
             asio::io_context io_ctx;
             asio::ip::tcp::socket sock(io_ctx);
             asio::ip::tcp::resolver resolver(io_ctx);
-
+            
             while (true) // send event info to player , my pack need to figure circular thread safe 
             {
-                DataPacket dp(nullptr);
-                rwq.wait_dequeue(dp); // listen for commands from gui thread
-
+                std::span<uint8_t> v;
+                rwq.wait_dequeue(v); // listen for commands from gui thread
+                sock.connect()
 
                 std::cout << "GUI thread sent command" << std::endl;
             }
@@ -43,7 +44,7 @@ namespace Pong::Net
         }
 
     private:
-        moodycamel::BlockingReaderWriterQueue<DataPacket> &rwq; // gui thread -> network thread
+        moodycamel::BlockingReaderWriterQueue<std::vector<uint8_t>> &rwq; // gui thread -> network thread
 
     };
 }
